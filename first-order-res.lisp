@@ -46,16 +46,12 @@
 	 (_ ,sentence)))))
 
 (defmacro def-trans-comp (name &body parts)
-  (let ((sentence (gensym "sentence"))
-	(names (mapcar #'car parts)))
-    `(progn
-       ,@(iter (for part in parts)
-	       (collect (cons 'def-trans part)))
-      (defun ,name (,sentence)
-	,(reduce (lambda (queue next)
-		   (cons next (list queue)))
-		 names
-		 :initial-value sentence)))))
+  (let ((sentence (gensym "sentence")))
+    `(defun ,name (,sentence)
+       ,(reduce (lambda (queue next)
+		  (cons next (list queue)))
+		parts
+		:initial-value sentence))))
 
 (def-trans simplify
   ((:not (:not x)) x)
@@ -66,13 +62,17 @@
   ((:or _ 1) 1)
   ((:or 1 _) 1))
 
+(def-trans expand-if
+  ((:if a b) (:or (:not a) b))
+  ((:iff a b) (:and (:or (:not a) b) (:or a (:not b)))))
+
+(def-trans de-morgan
+  ((:not (:or a b)) (:and (:not a) (:not b)))
+  ((:not (:and a b)) (:or (:not a) (:not b))))
+
 (def-trans-comp neg-norm-form
- (expand-if
-   ((:if a b) (:or (:not a) b))
-   ((:iff a b) (:and (:or (:not a) b) (:or a (:not b)))))
-  (de-morgan
-   ((:not (:or a b)) (:and (:not a) (:not b)))
-   ((:not (:and a b)) (:or (:not a) (:not b)))))
+  expand-if
+  de-morgan)
 
 (defun subs (sentence var val)
   ;should this eventually handle skolem function + predicate substitutions?
