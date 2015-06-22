@@ -27,7 +27,6 @@
 |#
 ;;; => (+ 2 3) =>  5
 ;;; this macro lets you reference your test case a la perl's variables $_ 
-#|
 (defun flatten (L)
 "Converts a list to single level."
     (if (null L)
@@ -35,7 +34,6 @@
         (if (atom (first L))
             (cons (first L) (flatten (rest L)))
             (append (flatten (first L)) (flatten (rest L))))))
-|#
 ;;; stole this from stack overflow
 
 (defparameter *ops* '(:and :or :not :if :iff :forall :exists :pred :skol)
