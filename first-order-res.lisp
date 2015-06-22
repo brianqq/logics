@@ -29,14 +29,16 @@
 			 ((member x *ops*) `(quote ,x))
 			 (t `(,recur ,x)))))))
 
-(defmacro def-trans (name &body rules)
+(defmacro def-trans (name docstring &body rules)
   "A more concise way to define a pattern-matching transformatioen"
   `(defun name (sentence) 
+     ,docstring
      (match sentence
        ,@(iter (for (ptrn skel) in rules)
 	       (collect (list (proc-pattern ptrn) (proc-skel name skel)))))))
 
 (def-trans neg-norm-form
+  "Translates to negative normal form"
   ((if a b) (or (not a) b))
   ((iff a b) (and (or (not a) b) (or a (not b)))))
 ;;; this should expand into the following code  
@@ -51,4 +53,4 @@
 ;;     (_ sentence)))
 
 (defun conj-norm-form (sentence)
-  wh)
+)
